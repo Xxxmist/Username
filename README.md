@@ -1,0 +1,60 @@
+# Username
+library(shiny)
+
+check_username=function(username,first_name=NA,last_name=NA,topic_word=NA){
+  gchara=c(0:9,"-","_",LETTERS,letters)
+  x=strsplit(username,split = "")
+  x=x[[1]]
+  y=x[length(x)]
+  sum=sum(x%in%(0:9))
+  s1="请输入您的用户名。"
+  s2="请考虑去掉后面的数字。"
+  s3="请考虑改进一下。"
+  s4="这个用户名太长了。"
+  s5="这是一个很好的用户名。"
+  i1=ifelse(length(x)>30,s4,s5)
+  i2=ifelse(y%in%(0:9),s2,i1)
+  i3=ifelse(sum==length(x),s3,i2)
+  suggests=ifelse(length(x)>0,i2,s1)
+  return(suggests)
+}
+
+ui = fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      
+      textInput("username","Please input your username.",value = ""),   
+      textInput("last_name","Please input your last_name",value = ""),
+      textInput("first_name","Please input your first_name",value = "")
+    ),
+    mainPanel(
+      
+      h2("Your username"),
+      verbatimTextOutput("username"),
+      br(),
+      
+      h2("Our evaluation"),
+      verbatimTextOutput("evaluation"),
+      br(),
+      
+      h2("Our suggestions"),
+      verbatimTextOutput("suggestions"),
+      br()
+      
+    )
+  )
+)
+
+server = function(input,output){
+  output$username=renderText({
+    input$username
+  })
+  output$evaluation=renderText({
+    check_username(input$username)
+  })
+  output$suggestions=renderText({
+    paste0(input$first_name,input$last_name)
+  })
+}
+
+shinyApp(ui=ui,server=server,options=list(display.mode="showcase"))
