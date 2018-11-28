@@ -1,0 +1,227 @@
+--- 
+title: "Check for GitHub Username Appropriateness"
+author: "YuXin Xie"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+  theme: united
+  highlight: tango
+---
+
+
+## Shiny App
+```{r eval=T}
+
+library(shiny)
+
+check_username=function(username,first_name=NA,last_name=NA,topic_word=NA){
+  gchara=c(0:9,"-","_",LETTERS,letters)
+  x=strsplit(username,split = "")
+  x=x[[1]]
+  y=x[length(x)]
+  sum=sum(x%in%(0:9))
+  s1="请输入您的用户名。"
+  s2="请考虑去掉后面的数字。"
+  s3="请考虑改进一下。"
+  s4="这个用户名太长了。"
+  s5="这是一个很好的用户名。"
+  i1=ifelse(length(x)>30,s4,s5)
+  i2=ifelse(y%in%(0:9),s2,i1)
+  i3=ifelse(sum==length(x),s3,i2)
+  suggests=ifelse(length(x)>0,i2,s1)
+  return(suggests)
+}
+
+ui = fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      
+      textInput("username","Please input your username.",value = ""),   
+      textInput("last_name","Please input your last_name",value = ""),
+      textInput("first_name","Please input your first_name",value = "")
+    ),
+    mainPanel(
+      
+      h2("Your username"),
+      verbatimTextOutput("username"),
+      br(),
+      
+      h2("Our evaluation"),
+      verbatimTextOutput("evaluation"),
+      br(),
+      
+      h2("Our suggestions"),
+      verbatimTextOutput("suggestions"),
+      br()
+      
+    )
+  )
+)
+
+server = function(input,output){
+  output$username=renderText({
+    input$username
+  })
+  output$evaluation=renderText({
+    check_username(input$username)
+  })
+  output$suggestions=renderText({
+    paste0(input$first_name,input$last_name)
+  })
+}
+
+shinyApp(ui=ui,server=server,options=list(display.mode="showcase"))
+
+
+```
+
+## Function Description
+
+Given a GitHub username, check for its appropriateness and give suggested usernames if certain rules are violated. 
+
+**Usage**
+```
+check_username(username, first_name=NA, last_name=NA, topic_word=NA)
+
+```
+
+- Inputs
+    - required: 
+        - `username`: GitHub username, e.g. "WinnerHaha2018"
+    - optional: 
+        - `first_name`: user's first name, e.g. Wenliang
+        - `last_name`: user's last name, e.g. He
+        - `topic_word`: a topic name, if the account is created for a specific topic, e.g. Education, Statistics
+- Outputs
+    - print to screen the appropriateness of a username
+        - "This is a good username to use."
+        - "Please consider improving it a bit."
+        - "Please use a different username."
+    - print to screen rules that are violated
+        - "Please do not use characters other than 0-9, a-z, A-Z, - and _"
+        - "Please consider removing the trailing numbers"
+    - `suggests`: a list of suggested usernames if certain rules are violated and user information provided
+
+
+## Details
+
+Rules that are implemented:
+
+- DO NOT
+    - `MUST`:  usernames composed completely of numbers
+- NOT RECOMMENDED
+    - `MUST`: usernames with trailing numbers
+    - `MORE`: usernames that are overly long (e.g. more than 30 characters)
+- RECOMMENDED
+    - use your actual names
+
+## Examples
+
+- Function Definition
+```{r eval=T}
+## define your function here
+
+check_username=function(username,first_name=NA,last_name=NA,topic_word=NA){
+  gchara=c(0:9,"-","_",LETTERS,letters)
+  x=strsplit(username,split = "")
+  x=x[[1]]
+  y=x[length(x)]
+  sum=sum(x%in%(0:9))
+  s1="请输入您的用户名。"
+  s2="请考虑去掉后面的数字。"
+  s3="请考虑改进一下。"
+  s4="这个用户名太长了。"
+  s5="这是一个很好的用户名。"
+  i1=ifelse(length(x)>30,s4,s5)
+  i2=ifelse(y%in%(0:9),s2,i1)
+  i3=ifelse(sum==length(x),s3,i2)
+  suggests=ifelse(length(x)>0,i2,s1)
+  return(suggests)
+}
+
+```
+
+- Examples
+```{r eval=T}
+## a username composed completely of numbers
+check_username(username="1237564", first_name="Wenliang", last_name="He", topic_word="Education")
+
+```
+
+
+```{r eval=T}
+## a username with trailing numbers
+check_username(username="WinnerHaha2018", first_name="Wenliang", last_name="He")
+
+```
+
+
+## Things to Do
+
+- Include one more hard rule for extra credits.
+- Write a shiny app to host the function online.
+
+
+## References
+
+- [Tips for GitHub Usernames](https://quantbook.netlify.com/index.html#register-a-github-account)
+
+
+----
+
+## Grading Criteria
+
+
+| Topic | Excellent: 3 | Satisfactory: 2 | Needs Work: 1 |
+|---|---|---|---|
+| 1. Completeness | complete code | sufficient | incomplete | 
+| 2. Coding Strategy | excellent coding strategy | satisfactory | poor |
+| 3. Coding Style | excellent coding style | satisfactory | poor |
+| 4. Presentation | effective presentation | satisfactory | poor |
+| 5. Access | easy access | satisfactory | poor | 
+| Extra Credits: Mastery | exceptional mastery | satisfactory | poor |  
+
+
+**Complete Code**
+
+- **complete**: two `MUST` and two `MORE` are done
+- **sufficient**: two `MUST` are done
+- **incomplete**: at least one `MUST` is not done
+
+**Excellent Coding Strategy** 
+
+- code is corrent and minimal (i.e. avoiding repetitive code) 
+    - e.g. break a complicated problem into simpler sub-problems
+    - e.g. use appropriate data structure (e.g. vector, matrix, dataframe, list)
+
+**Excellent Coding Style** 
+
+- code is easily readable
+    - e.g. use of effective indentation and spacing
+    - e.g. use appropriate comments
+
+**Effective Presentation**
+
+- provide good examples to illustrate usage of the function
+- writing is clear and concise
+- overall view is beautiful
+
+**Easy Access**
+
+- upload project to GitHub 
+- make it easy for instructor and TA(s) to access source code 
+- create shiny app to deploy the code 
+
+
+**Extra Credits: Exceptional Mastery**
+
+- the task is ambitionous (e.g. including new ideas way beyond the starter code)
+- exhibit extraordinary effort
+- demonstrate usually sophisticated application of techniques/tools from this course
+- use additional techniques/tools not addressed by this course
+
+In short, "exceptional mastery" goes beyond what is commonly expected!
+
+
+
+
